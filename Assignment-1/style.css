@@ -1,0 +1,464 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Lato,Arial,sans-serif;
+    background:#fff;
+    color:#777;
+    overflow-x:hidden;
+}
+
+img{
+    max-width:100%;
+    height:auto;
+    display:block;
+}
+
+
+.header{
+    background:url("https://www.w3schools.com/w3images/parallax1.jpg") center/cover no-repeat;
+    min-height:100vh;
+    opacity:.75;
+}
+
+.navbar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:55px;
+    background:#fff;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    z-index:1000;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+
+.navbar ul{
+    display:flex;
+    gap:25px;
+    list-style:none;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#000;
+    font-size:17px;
+    text-transform:uppercase;
+}
+
+.search-button{
+    width:20px;
+    cursor:pointer;
+}
+
+.logo{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.logo h1{
+    background:#111;
+    color:#fff;
+    padding:15px 25px;
+    font-weight:400;
+    letter-spacing:8px;
+}
+
+
+
+.primary{
+    text-align:center;
+    margin:0 130px;
+    padding:80px;
+}
+
+.primary h2,
+.work h1,
+.title h2{
+    font-weight:400;
+    margin-bottom:20px;
+}
+
+.primary h3{
+    margin-bottom:25px;
+}
+
+.primary p{
+    line-height:1.8;
+    text-align:justify;
+}
+
+
+
+.secondary{
+    display:flex;
+    gap:50px;
+    margin:0 150px;
+    padding:40px;
+    align-items:flex-start;
+}
+
+.secondary h3{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+
+
+.progressBar{
+    margin:0 130px;
+    padding:50px 80px;
+}
+
+.skill{
+    margin-bottom:30px;
+}
+
+.skill p{
+    margin-bottom:10px;
+    letter-spacing:6px;
+}
+
+.progress-bar{
+    background:#ddd;
+    height:35px;
+}
+
+.progress{
+    background:#666;
+    color:#fff;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.photography{width:90%;}
+.web{width:85%;}
+.photoshop{width:75%;}
+
+
+
+.record{
+    background:#616161;
+    color:#fff;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    text-align:center;
+    padding:40px;
+}
+
+.record-data h2{
+    font-weight:400;
+    margin-bottom:10px;
+}
+
+
+
+.portfolio,
+.contact-banner{
+    height:400px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background-position:center;
+    background-size:cover;
+    background-repeat:no-repeat;
+}
+
+.portfolio{
+    background-image:url("https://www.w3schools.com/w3images/parallax2.jpg");
+}
+
+.contact-banner{
+    background-image:url("https://www.w3schools.com/w3images/parallax3.jpg");
+}
+
+.portfolio h1,
+.contact-banner h1{
+    color:#fff;
+    letter-spacing:10px;
+    font-weight:400;
+}
+
+
+.work{
+    text-align:center;
+    padding:80px 0;
+}
+
+.work p{
+    margin:10px 0;
+}
+
+.gallery{
+    width:70%;
+    margin:50px auto;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+.gallery img{
+    transition:.3s;
+}
+
+.gallery img:hover{
+    opacity:.7;
+}
+
+.load-btn,
+.send-btn,
+.top-btn{
+    cursor:pointer;
+    transition:.3s;
+}
+
+.load-btn{
+    border:none;
+    background:#ddd;
+    padding:15px 30px;
+}
+
+.load-btn:hover{
+    background:#bbb;
+}
+
+
+
+.contact-section{
+    padding:80px 120px;
+}
+
+.title{
+    text-align:center;
+    margin-bottom:60px;
+}
+
+.contact-container{
+    display:flex;
+    gap:50px;
+}
+
+.contact-image{
+    flex:1;
+}
+
+.contact-image img{
+    max-width:430px;
+}
+
+.contact-info{
+    flex:1.4;
+}
+
+.details p{
+    margin-bottom:15px;
+    font-size:22px;
+}
+
+.message{
+    margin:20px 0;
+}
+
+.row{
+    display:flex;
+    gap:20px;
+}
+
+.row input{
+    flex:1;
+}
+
+input,
+textarea{
+    width:100%;
+    border:1px solid #ccc;
+    padding:12px;
+    margin-bottom:15px;
+    font-family:inherit;
+}
+
+textarea{
+    height:90px;
+    resize:none;
+}
+
+.send-btn{
+    float:right;
+    background:#000;
+    color:#fff;
+    border:none;
+    padding:12px 24px;
+}
+
+.send-btn:hover{
+    background:#555;
+}
+
+
+
+footer{
+    background:#666;
+    color:#fff;
+    text-align:center;
+    padding:50px 20px;
+}
+
+.top-btn{
+    border:none;
+    padding:12px 25px;
+    margin-bottom:20px;
+}
+
+.social{
+    margin:20px 0;
+}
+
+.social img{
+    width:22px;
+    display:inline-block;
+    margin:0 5px;
+    filter:brightness(0) invert(1);
+}
+
+footer span{
+    text-decoration:underline;
+}
+
+
+
+@media(max-width:1024px){
+
+.primary,
+.progressBar{
+    margin:0 40px;
+    padding:60px 30px;
+}
+
+.secondary{
+    margin:0 40px;
+    padding:30px;
+}
+
+.gallery{
+    width:90%;
+    grid-template-columns:repeat(3,1fr);
+}
+
+.contact-section{
+    padding:60px;
+}
+
+.contact-image img{
+    max-width:340px;
+}
+
+}
+
+
+@media(max-width:768px){
+
+.navbar{
+    padding:0 15px;
+}
+
+.navbar ul{
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.nav-links a{
+    font-size:14px;
+}
+
+.logo h1{
+    font-size:22px;
+    letter-spacing:4px;
+}
+
+.primary,
+.progressBar{
+    margin:0;
+    padding:40px 20px;
+}
+
+.secondary{
+    margin:0;
+    padding:30px 20px;
+    flex-direction:column;
+    text-align:center;
+}
+
+.record{
+    grid-template-columns:repeat(2,1fr);
+    gap:25px;
+}
+
+.gallery{
+    width:92%;
+    grid-template-columns:repeat(2,1fr);
+}
+
+.contact-section{
+    padding:40px 20px;
+}
+
+.contact-container{
+    flex-direction:column;
+}
+
+.contact-image img{
+    max-width:100%;
+}
+
+.row{
+    flex-direction:column;
+}
+
+.send-btn{
+    width:100%;
+    float:none;
+}
+
+}
+
+
+@media(max-width:480px){
+
+.gallery{
+    grid-template-columns:1fr;
+}
+
+.record{
+    grid-template-columns:1fr;
+}
+
+.logo h1{
+    font-size:18px;
+}
+
+.primary{
+    padding:30px 15px;
+}
+
+.contact-banner h1,
+.portfolio h1{
+    font-size:28px;
+}
+
+.details p{
+    font-size:18px;
+}
+
+}
