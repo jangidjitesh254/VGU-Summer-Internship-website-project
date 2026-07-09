@@ -1,0 +1,24 @@
+
+.products-list{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.product-card{
+    width: 250px;
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid gray;
+    text-align: center;
+
+}
+
+.product-card img{
+    width: 100%;
+    height: 180px;
+    margin-bottom: 10px;
+}
