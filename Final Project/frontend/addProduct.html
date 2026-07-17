@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Product | ReUse</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="login-page">
+
+<div class="container">
+
+<div class="row justify-content-center align-items-center min-vh-100">
+
+<div class="col-lg-8">
+
+<div class="card shadow-lg border-0">
+
+<div class="card-header bg-success text-white text-center py-3">
+
+<h2 class="mb-0">Add New Product</h2>
+
+</div>
+
+<div class="card-body p-5">
+
+<form id="productForm">
+
+<div class="mb-3">
+
+<label class="form-label fw-bold">
+
+Product Name
+
+</label>
+
+<input
+type="text"
+class="form-control form-control-lg"
+id="title"
+placeholder="Enter Product Name"
+required>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label fw-bold">
+
+Price (₹)
+
+</label>
+
+<input
+type="number"
+class="form-control form-control-lg"
+id="price"
+placeholder="Enter Price"
+required>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label class="form-label fw-bold">
+
+Category
+
+</label>
+
+<select
+class="form-select form-select-lg"
+id="category"
+required>
+
+<option value="">Choose Category</option>
+
+<option>Books</option>
+
+<option>Electronics</option>
+
+<option>Furniture</option>
+
+<option>Fashion</option>
+
+<option>Sports</option>
+
+<option>Others</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label fw-bold">
+
+Condition
+
+</label>
+
+<select
+class="form-select form-select-lg"
+id="condition"
+required>
+
+<option value="">Choose Condition</option>
+
+<option>New</option>
+
+<option>Like New</option>
+
+<option>Good</option>
+
+<option>Fair</option>
+
+</select>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label fw-bold">
+
+Image URL
+
+</label>
+
+<input
+type="url"
+class="form-control form-control-lg"
+id="image"
+placeholder="Paste Image URL"
+required>
+
+</div>
+
+<div class="mb-4">
+
+<label class="form-label fw-bold">
+
+Description
+
+</label>
+
+<textarea
+class="form-control"
+rows="5"
+id="description"
+placeholder="Write product description..."
+required></textarea>
+
+</div>
+
+<div class="d-grid gap-3">
+
+<button
+class="btn btn-success btn-lg"
+type="submit">
+
+Add Product
+
+</button>
+
+<a
+href="dashboard.html"
+class="btn btn-outline-secondary btn-lg">
+
+Back to Dashboard
+
+</a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+document.getElementById("productForm").addEventListener("submit",async(e)=>{
+
+e.preventDefault();
+
+const product={
+
+title:document.getElementById("title").value,
+
+price:document.getElementById("price").value,
+
+category:document.getElementById("category").value,
+
+condition:document.getElementById("condition").value,
+
+image:document.getElementById("image").value,
+
+description:document.getElementById("description").value
+
+};
+
+const response=await fetch("http://localhost:5000/products",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(product)
+
+});
+
+if(response.ok){
+
+alert("Product Added Successfully!");
+
+window.location.href="dashboard.html";
+
+}
+else{
+
+alert("Something went wrong!");
+
+}
+
+});
+
+</script>
+
+</body>
+
+</html>
