@@ -8,17 +8,19 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/ReUse")
-.then(()=>{
+.then(() => {
     console.log("MongoDB Connected");
 })
-.catch(err=>{
-    console.log(err);
+.catch(err => {
+    console.log("MongoDB Connection Error:", err);
 });
 
 const productRoutes = require("./routes/productRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 app.use("/products", productRoutes);
+app.use("/auth", authRoutes);
 
 app.listen(5000, () => {
-    console.log("Server Running");
+    console.log("Server Running on port 5000");
 });
