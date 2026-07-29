@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getProductById, updateProduct } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function EditProductPage() {
   const { id } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -11,6 +13,7 @@ export default function EditProductPage() {
     price: '',
     category: '',
     condition: '',
+    location: '',
     image: '',
     description: '',
   });
@@ -18,17 +21,27 @@ export default function EditProductPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [isOwner, setIsOwner] = useState(true);
 
   useEffect(() => {
     async function loadProductData() {
       try {
         setLoading(true);
         const product = await getProductById(id);
+
+        // Check product ownership
+        if (product && product.sellerEmail && user && user.email.toLowerCase() !== product.sellerEmail.toLowerCase()) {
+          setIsOwner(false);
+          setError("Unauthorized: You can only edit products that you listed for sale.");
+          return;
+        }
+
         setFormData({
           title: product.title || '',
           price: product.price || '',
           category: product.category || '',
           condition: product.condition || '',
+          location: product.location || 'Main Campus',
           image: product.image || '',
           description: product.description || '',
         });
@@ -43,7 +56,7 @@ export default function EditProductPage() {
     if (id) {
       loadProductData();
     }
-  }, [id]);
+  }, [id, user]);
 
   const handleChange = (e) => {
     const { id: fieldId, value } = e.target;
@@ -55,12 +68,17 @@ export default function EditProductPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!isOwner) {
+      alert("Unauthorized: You can only edit products you listed.");
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
 
     try {
-      await updateProduct(id, formData);
-      alert('Product Updated Successfully');
+      await updateProduct(id, formData, user ? user.email : null);
+      alert('Product Updated Successfully!');
       navigate('/dashboard');
     } catch (err) {
       console.error(err);
@@ -81,6 +99,21 @@ export default function EditProductPage() {
     );
   }
 
+  if (!isOwner) {
+    return (
+      <div className="container py-5 text-center min-vh-80 d-flex flex-column justify-content-center align-items-center">
+        <div className="card shadow-lg p-5 rounded-4 border-0 max-w-md bg-white">
+          <i className="bi bi-shield-lock-fill display-2 text-danger mb-3"></i>
+          <h3 className="fw-bold">Access Denied</h3>
+          <p className="text-muted">You do not have permission to edit this product. Only the seller who listed it can make changes.</p>
+          <Link to="/dashboard" className="btn btn-success px-4 py-2 mt-2">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-5 bg-light min-vh-100 d-flex align-items-center">
       <div className="container">
@@ -92,7 +125,7 @@ export default function EditProductPage() {
                   <i className="bi bi-arrow-left me-1"></i> Back
                 </Link>
                 <h2 className="mb-0 fw-bold fs-3">Edit Product</h2>
-                <p className="text-white-50 mb-0 small mt-1">Update details for this marketplace listing</p>
+                <p className="text-white-50 mb-0 small mt-1">Update details for your marketplace listing</p>
               </div>
 
               <div className="card-body p-4 p-md-5">
@@ -155,21 +188,35 @@ export default function EditProductPage() {
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="form-label fw-bold text-dark">Condition</label>
-                    <select
-                      className="form-select form-control-custom"
-                      id="condition"
-                      value={formData.condition}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Choose Condition</option>
-                      <option value="New">Brand New</option>
-                      <option value="Like New">Like New</option>
-                      <option value="Good">Good</option>
-                      <option value="Fair">Fair</option>
-                    </select>
+                  <div className="row">
+                    <div className="col-md-6 mb-4">
+                      <label className="form-label fw-bold text-dark">Condition</label>
+                      <select
+                        className="form-select form-control-custom"
+                        id="condition"
+                        value={formData.condition}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Choose Condition</option>
+                        <option value="New">Brand New</option>
+                        <option value="Like New">Like New</option>
+                        <option value="Good">Good</option>
+                        <option value="Fair">Fair</option>
+                      </select>
+                    </div>
+
+                    <div className="col-md-6 mb-4">
+                      <label className="form-label fw-bold text-dark">Location</label>
+                      <input
+                        type="text"
+                        className="form-control form-control-custom"
+                        id="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -200,7 +247,7 @@ export default function EditProductPage() {
 
                   <div className="d-grid gap-3 pt-2">
                     <button
-                      className="btn btn-emerald btn-lg py-3 fw-bold shadow d-flex align-items-center justify-content-center gap-2"
+                      className="btn btn-success btn-lg py-3 fw-bold shadow d-flex align-items-center justify-content-center gap-2"
                       type="submit"
                       disabled={submitting}
                     >

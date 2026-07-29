@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createProduct } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function AddProductPage() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     price: '',
     category: '',
     condition: '',
+    location: 'Main Campus',
     image: '',
     description: '',
   });
@@ -30,7 +33,13 @@ export default function AddProductPage() {
     setError(null);
 
     try {
-      await createProduct(formData);
+      const payload = {
+        ...formData,
+        sellerEmail: user ? user.email : "seller@university.edu",
+        sellerName: user ? (user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email.split('@')[0]) : "Campus Seller"
+      };
+
+      await createProduct(payload);
       alert('Product Added Successfully!');
       navigate('/dashboard');
     } catch (err) {
@@ -121,23 +130,40 @@ export default function AddProductPage() {
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="form-label fw-bold text-dark">
-                      Condition <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      className="form-select form-control-custom"
-                      id="condition"
-                      value={formData.condition}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Choose Condition</option>
-                      <option value="New">Brand New</option>
-                      <option value="Like New">Like New (Barely used)</option>
-                      <option value="Good">Good (Minor wear)</option>
-                      <option value="Fair">Fair (Fully functional)</option>
-                    </select>
+                  <div className="row">
+                    <div className="col-md-6 mb-4">
+                      <label className="form-label fw-bold text-dark">
+                        Condition <span className="text-danger">*</span>
+                      </label>
+                      <select
+                        className="form-select form-control-custom"
+                        id="condition"
+                        value={formData.condition}
+                        onChange={handleChange}
+                        required
+                      >
+                        <option value="">Choose Condition</option>
+                        <option value="New">Brand New</option>
+                        <option value="Like New">Like New (Barely used)</option>
+                        <option value="Good">Good (Minor wear)</option>
+                        <option value="Fair">Fair (Fully functional)</option>
+                      </select>
+                    </div>
+
+                    <div className="col-md-6 mb-4">
+                      <label className="form-label fw-bold text-dark">
+                        Campus / Pickup Location <span className="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control form-control-custom"
+                        id="location"
+                        placeholder="e.g. Main Campus, Dorm A, Library..."
+                        value={formData.location}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -175,7 +201,7 @@ export default function AddProductPage() {
 
                   <div className="d-grid gap-3 pt-2">
                     <button
-                      className="btn btn-emerald btn-lg py-3 fw-bold shadow d-flex align-items-center justify-content-center gap-2"
+                      className="btn btn-success btn-lg py-3 fw-bold shadow d-flex align-items-center justify-content-center gap-2"
                       type="submit"
                       disabled={submitting}
                     >

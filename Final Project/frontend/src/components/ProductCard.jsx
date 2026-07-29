@@ -1,8 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductCard({ product, onDelete }) {
+  const { user } = useAuth();
   const fallbackImg = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800";
+
+  // Ownership Check: Only the seller who listed the item can Edit/Delete
+  const isOwner = Boolean(
+    user &&
+    user.email &&
+    product.sellerEmail &&
+    user.email.toLowerCase() === product.sellerEmail.toLowerCase()
+  );
 
   return (
     <div className="col-lg-3 col-md-6 col-sm-12">
@@ -58,19 +68,26 @@ export default function ProductCard({ product, onDelete }) {
           <div className="mt-auto d-flex flex-column gap-2 pt-2 border-top">
             <div className="d-flex gap-2">
               <Link to={`/product/${product._id}`} className="btn btn-success flex-grow-1 btn-sm py-2 fw-medium d-flex align-items-center justify-content-center gap-1">
-                 View Details
+                <i className="bi bi-eye"></i> View Details
               </Link>
-              <Link to={`/edit-product/${product._id}`} className="btn btn-outline-warning btn-sm px-3 d-flex align-items-center justify-content-center" title="Edit Product">
-                <i className="bi bi-pencil"></i>
-              </Link>
+
+              {/* Only show Edit button to the Product Owner */}
+              {isOwner && (
+                <Link to={`/edit-product/${product._id}`} className="btn btn-outline-warning btn-sm px-3 d-flex align-items-center justify-content-center" title="Edit Product">
+                  <i className="bi bi-pencil"></i>
+                </Link>
+              )}
             </div>
 
-            <button
-              onClick={() => onDelete(product._id)}
-              className="btn btn-outline-danger btn-sm w-100 py-1 d-flex align-items-center justify-content-center gap-1 opacity-75 hover-100"
-            >
-               Delete
-            </button>
+            {/* Only show Delete button to the Product Owner */}
+            {isOwner && (
+              <button
+                onClick={() => onDelete(product._id)}
+                className="btn btn-outline-danger btn-sm w-100 py-1 d-flex align-items-center justify-content-center gap-1 opacity-75 hover-100"
+              >
+                <i className="bi bi-trash"></i> Delete
+              </button>
+            )}
           </div>
         </div>
       </div>

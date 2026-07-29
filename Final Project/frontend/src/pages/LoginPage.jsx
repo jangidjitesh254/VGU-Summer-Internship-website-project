@@ -15,7 +15,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Redirect destination after login if coming from a protected route
   const from = location.state?.from?.pathname || '/dashboard';
   const redirectMessage = location.state?.message;
 
@@ -152,7 +151,7 @@ export default function LoginPage() {
                       </a>
                     </div>
 
-                    <button type="submit" className="btn btn-emerald w-100 py-3 fw-bold fs-6 shadow" disabled={loading}>
+                    <button type="submit" className="btn btn-success w-100 py-3 fw-bold fs-6 shadow" disabled={loading}>
                       {loading ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>

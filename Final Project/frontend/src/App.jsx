@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -12,6 +12,8 @@ import DashboardPage from './pages/DashboardPage';
 import AddProductPage from './pages/AddProductPage';
 import EditProductPage from './pages/EditProductPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
+import MessagesPage from './pages/MessagesPage';
+import OrdersPage from './pages/OrdersPage';
 
 function AppContent() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,7 +29,7 @@ function AppContent() {
           <Route path="/dashboard" element={<DashboardPage externalSearchTerm={searchTerm} />} />
           <Route path="/product/:id" element={<ProductDetailsPage />} />
           
-          {/* Protected Routes - Authentication Required */}
+          {/* Protected Routes */}
           <Route
             path="/add-product"
             element={
@@ -41,6 +43,22 @@ function AppContent() {
             element={
               <ProtectedRoute>
                 <EditProductPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <ProtectedRoute>
+                <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrdersPage />
               </ProtectedRoute>
             }
           />

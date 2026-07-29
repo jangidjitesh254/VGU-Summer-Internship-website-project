@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getProductById } from '../api';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getProductById, createEscrowCheckout } from '../api';
+import { useAuth } from '../context/AuthContext';
+import socket from '../socket';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Modals state
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [showChatModal, setShowChatModal] = useState(false);
+
+  // Form Inputs
+  const [chatMessage, setChatMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const fallbackImg = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800";
 
@@ -28,6 +41,67 @@ export default function ProductDetailsPage() {
       fetchProduct();
     }
   }, [id]);
+
+  const handleEscrowCheckout = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Please log in to complete your escrow purchase.");
+      navigate('/login');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      await createEscrowCheckout({
+        productId: product._id,
+        productTitle: product.title,
+        productImage: product.image,
+        amount: product.price,
+        buyerEmail: user.email,
+        buyerName: user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email.split('@')[0],
+        sellerEmail: product.sellerEmail || "seller@university.edu",
+        sellerName: product.sellerName || "Campus Seller"
+      });
+
+      alert("✨ Escrow Payment Successful! Funds are safely held in escrow until you inspect and receive the item.");
+      setShowCheckoutModal(false);
+      navigate('/orders');
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Escrow Checkout failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSendChatMessage = (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Please log in to chat with the seller.");
+      navigate('/login');
+      return;
+    }
+    if (!chatMessage.trim()) return;
+
+    const sellerEmail = product.sellerEmail || "seller@university.edu";
+    const roomId = `${product._id}_${[user.email.toLowerCase(), sellerEmail.toLowerCase()].sort().join('_')}`;
+
+    socket.emit('send_message', {
+      roomId,
+      productId: product._id,
+      productTitle: product.title,
+      senderEmail: user.email,
+      senderName: user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.email.split('@')[0],
+      receiverEmail: sellerEmail,
+      receiverName: product.sellerName || "Seller",
+      text: chatMessage.trim()
+    });
+
+    alert("✨ Message sent to seller! Redirecting to your Inbox...");
+    setChatMessage('');
+    setShowChatModal(false);
+    navigate('/messages');
+  };
 
   if (loading) {
     return (
@@ -68,7 +142,7 @@ export default function ProductDetailsPage() {
                     src={product.image || fallbackImg}
                     alt={product.title}
                     className="img-fluid w-100 h-100"
-                    style={{ objectFit: 'cover', minHeight: '380px', maxHeight: '550px' }}
+                    style={{ objectFit: 'cover', minHeight: '400px', maxHeight: '580px' }}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = fallbackImg;
@@ -89,22 +163,27 @@ export default function ProductDetailsPage() {
                         <i className="bi bi-tag-fill me-1"></i> {product.category || 'General'}
                       </span>
                       <small className="text-muted">
-                        <i className="bi bi-clock me-1"></i> Listed Recently
+                        <i className="bi bi-geo-alt-fill text-danger me-1"></i> {product.location || 'Main Campus'}
                       </small>
                     </div>
 
                     <h1 className="fw-extrabold text-dark mb-3 fs-2">{product.title}</h1>
 
-                    <div className="p-3 bg-light rounded-3 mb-4 d-flex align-items-center justify-content-between border">
-                      <div>
-                        <small className="text-muted text-uppercase fw-semibold d-block">Listing Price</small>
-                        <span className="display-6 fw-extrabold text-success">
-                          ₹{Number(product.price).toLocaleString()}
+                    <div className="p-3 bg-light rounded-3 mb-4 border">
+                      <div className="d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                          <small className="text-muted text-uppercase fw-semibold d-block">Price</small>
+                          <span className="display-6 fw-extrabold text-success">
+                            ₹{Number(product.price).toLocaleString()}
+                          </span>
+                        </div>
+                        <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
+                          <i className="bi bi-shield-check me-1"></i> Escrow Protected
                         </span>
                       </div>
-                      <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 rounded-pill fw-semibold">
-                        <i className="bi bi-check-circle-fill me-1"></i> Campus Direct
-                      </span>
+                      <small className="text-muted d-block" style={{ fontSize: '0.75rem' }}>
+                        🛡️ Payment held safely in escrow until you inspect and accept the item.
+                      </small>
                     </div>
 
                     <div className="mb-4">
@@ -120,22 +199,32 @@ export default function ProductDetailsPage() {
                           <i className="bi bi-person"></i>
                         </div>
                         <div>
-                          <h6 className="fw-bold mb-0">Verified Student Seller</h6>
-                          <small className="text-muted">Safe campus meet-up guaranteed</small>
+                          <h6 className="fw-bold mb-0">{product.sellerName || "Verified Student Seller"}</h6>
+                          <small className="text-muted">{product.sellerEmail || "seller@university.edu"}</small>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="d-flex flex-column flex-sm-row gap-3 pt-3 border-top">
+                  {/* Primary Action Buttons */}
+                  <div className="d-flex flex-column gap-2 pt-3 border-top">
+                    {/* Buy Now Escrow Payment */}
                     <button
-                      onClick={() => alert(`Contacting seller regarding "${product.title}"...`)}
-                      className="btn btn-success flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center gap-2 shadow"
+                      onClick={() => setShowCheckoutModal(true)}
+                      className="btn btn-success w-100 py-3 fw-bold fs-6 shadow d-flex align-items-center justify-content-center gap-2"
                     >
-                      <i className="bi bi-chat-dots-fill"></i> Contact Seller
+                      <i className="bi bi-shield-lock-fill fs-5"></i> Buy Now with Escrow Protection
                     </button>
-                    <Link to="/dashboard" className="btn btn-outline-secondary py-3 px-4 fw-semibold d-flex align-items-center justify-content-center gap-2">
-                      <i className="bi bi-arrow-left"></i> Back to Dashboard
+
+                    <button
+                      onClick={() => setShowChatModal(true)}
+                      className="btn btn-outline-success w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2"
+                    >
+                      <i className="bi bi-chat-dots-fill"></i> Chat with Seller
+                    </button>
+
+                    <Link to="/dashboard" className="btn btn-link text-secondary text-decoration-none text-center small mt-2">
+                      <i className="bi bi-arrow-left me-1"></i> Back to Dashboard
                     </Link>
                   </div>
                 </div>
@@ -144,6 +233,114 @@ export default function ProductDetailsPage() {
           </div>
         </div>
       </div>
+
+      {/* Escrow Checkout Modal */}
+      {showCheckoutModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow-2xl">
+              <div className="modal-header bg-dark text-white p-4" style={{ background: 'var(--primary-gradient)' }}>
+                <h5 className="modal-title fw-bold">
+                  <i className="bi bi-shield-lock-fill me-2"></i> Secure Escrow Payment
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setShowCheckoutModal(false)}></button>
+              </div>
+
+              <form onSubmit={handleEscrowCheckout}>
+                <div className="modal-body p-4">
+                  <div className="alert alert-success bg-success bg-opacity-10 border-success text-dark rounded-3 mb-3 small">
+                    <i className="bi bi-info-circle-fill me-2 text-success"></i>
+                    Your funds will be safely held in <strong>ReUse Escrow</strong>. The seller only receives payment after you inspect and accept the product in person.
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label text-muted small fw-bold">Item Title</label>
+                    <input type="text" className="form-control" value={product.title} disabled />
+                  </div>
+
+                  <div className="row g-2 mb-3">
+                    <div className="col-6">
+                      <label className="form-label text-muted small fw-bold">Total Amount</label>
+                      <input type="text" className="form-control font-weight-bold text-success" value={`₹${product.price}`} disabled />
+                    </div>
+                    <div className="col-6">
+                      <label className="form-label text-muted small fw-bold">Seller</label>
+                      <input type="text" className="form-control" value={product.sellerEmail || "seller@university.edu"} disabled />
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label text-dark fw-semibold small">Simulated Payment Method</label>
+                    <select className="form-select">
+                      <option>Campus Wallet / UPI Direct</option>
+                      <option>Credit / Debit Card</option>
+                      <option>Net Banking</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="modal-footer p-3 bg-light border-top">
+                  <button type="button" className="btn btn-outline-secondary rounded-3" onClick={() => setShowCheckoutModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-success fw-bold px-4" disabled={submitting}>
+                    {submitting ? 'Processing...' : 'Confirm Escrow Payment'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Socket.io Chat Modal */}
+      {showChatModal && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }} tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 border-0 shadow-2xl">
+              <div className="modal-header bg-dark text-white p-4" style={{ background: 'var(--primary-gradient)' }}>
+                <h5 className="modal-title fw-bold">
+                  <i className="bi bi-chat-dots-fill me-2"></i> Chat with Seller
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setShowChatModal(false)}></button>
+              </div>
+
+              <form onSubmit={handleSendChatMessage}>
+                <div className="modal-body p-4">
+                  <div className="d-flex align-items-center gap-3 mb-3 p-3 bg-light rounded-3 border">
+                    <i className="bi bi-box-seam fs-3 text-success"></i>
+                    <div>
+                      <h6 className="fw-bold mb-0">{product.title}</h6>
+                      <small className="text-muted">Seller: {product.sellerEmail || "seller@university.edu"}</small>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="form-label text-dark fw-semibold small">Your Message</label>
+                    <textarea
+                      className="form-control"
+                      rows="4"
+                      placeholder="Hi! Is this item still available for pickup on campus?"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      required
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div className="modal-footer p-3 bg-light border-top">
+                  <button type="button" className="btn btn-outline-secondary rounded-3" onClick={() => setShowChatModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn btn-success fw-bold px-4">
+                    Send Message <i className="bi bi-send-fill ms-1"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

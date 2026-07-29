@@ -31,32 +31,44 @@ export async function createProduct(productData) {
   return response.json();
 }
 
-export async function updateProduct(id, productData) {
+export async function updateProduct(id, productData, userEmail) {
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  if (userEmail) {
+    headers['x-user-email'] = userEmail;
+  }
+
   const response = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(productData),
   });
+  const data = await response.json();
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Failed to update product');
+    throw new Error(data.message || 'Failed to update product');
   }
-  return response.json();
+  return data;
 }
 
-export async function deleteProductApi(id) {
+export async function deleteProductApi(id, userEmail) {
+  const headers = {};
+  if (userEmail) {
+    headers['x-user-email'] = userEmail;
+  }
+
   const response = await fetch(`${API_BASE_URL}/products/${id}`, {
     method: 'DELETE',
+    headers
   });
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error('Failed to delete product');
+    throw new Error(data.message || 'Failed to delete product');
   }
-  return response.json();
+  return data;
 }
 
-// Authentication API calls
+// Authentication APIs
 export async function loginUser(credentials) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
@@ -83,6 +95,75 @@ export async function registerUser(userData) {
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.message || 'Registration failed');
+  }
+  return data;
+}
+
+// Messaging APIs
+export async function sendMessage(msgData) {
+  const response = await fetch(`${API_BASE_URL}/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(msgData),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to send message');
+  }
+  return data;
+}
+
+export async function getUserMessages(email) {
+  const response = await fetch(`${API_BASE_URL}/messages?email=${encodeURIComponent(email)}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch messages');
+  }
+  return response.json();
+}
+
+export async function getChatThread(productId, user1, user2) {
+  const response = await fetch(
+    `${API_BASE_URL}/messages/thread?productId=${productId}&user1=${encodeURIComponent(user1)}&user2=${encodeURIComponent(user2)}`
+  );
+  if (!response.ok) {
+    throw new Error('Failed to fetch chat thread');
+  }
+  return response.json();
+}
+
+// Escrow Transactions APIs
+export async function createEscrowCheckout(checkoutData) {
+  const response = await fetch(`${API_BASE_URL}/transactions/checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(checkoutData),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Checkout failed');
+  }
+  return data;
+}
+
+export async function getUserTransactions(email) {
+  const response = await fetch(`${API_BASE_URL}/transactions/user?email=${encodeURIComponent(email)}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch transactions');
+  }
+  return response.json();
+}
+
+export async function releaseEscrow(id) {
+  const response = await fetch(`${API_BASE_URL}/transactions/${id}/release`, {
+    method: 'PUT',
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Failed to release escrow');
   }
   return data;
 }

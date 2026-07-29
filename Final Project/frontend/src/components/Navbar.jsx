@@ -12,7 +12,6 @@ export default function Navbar({ onSearch }) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  // Sync search term from URL query parameter if present
   useEffect(() => {
     const query = searchParams.get('search');
     if (query !== null) {
@@ -20,7 +19,6 @@ export default function Navbar({ onSearch }) {
     }
   }, [searchParams]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -58,7 +56,6 @@ export default function Navbar({ onSearch }) {
     navigate('/');
   };
 
-  // Format user display name reliably
   const getUserDisplayName = () => {
     if (!user) return 'Student';
     if (user.firstName && user.firstName.trim()) {
@@ -76,10 +73,10 @@ export default function Navbar({ onSearch }) {
       <div className="container-fluid px-lg-5">
         <Link className="navbar-brand fw-bold fs-3 d-flex align-items-center gap-2 me-lg-3" to="/">
           <i className="bi bi-recycle text-success fs-2"></i>
-          <span className="navbar-brand-success">ReUse</span>
+          <span className="navbar-brand-gradient">ReUse</span>
         </Link>
 
-        {/* Global Search bar rendered consistently on EVERY page */}
+        {/* Global Search bar */}
         <form className="d-flex my-2 my-lg-0 mx-lg-3 flex-grow-1" style={{ maxWidth: '360px' }} onSubmit={handleSearchSubmit}>
           <div className="input-group">
             <input
@@ -90,7 +87,7 @@ export default function Navbar({ onSearch }) {
               onChange={handleSearchChange}
               style={{ borderRadius: '10px 0 0 10px' }}
             />
-            <button className="btn btn-success px-3" type="submit" style={{ borderRadius: '0 10px 10px 0' }}>
+            <button className="btn btn-solid-success px-3" type="submit" style={{ borderRadius: '0 10px 10px 0' }}>
               <i className="bi bi-search"></i>
             </button>
           </div>
@@ -120,16 +117,21 @@ export default function Navbar({ onSearch }) {
                 <i className="bi bi-grid me-1"></i> Explore
               </Link>
             </li>
-            
             <li className="nav-item">
-              <Link className="nav-link custom-nav-link text-white-50" to="#" onClick={(e) => { e.preventDefault(); alert("Wishlist saved!"); }}>
-                <i className="bi bi-heart me-1"></i> Wishlist
+              <Link className={`nav-link custom-nav-link ${location.pathname === '/messages' ? 'active' : ''}`} to="/messages">
+                <i className="bi bi-chat-dots me-1"></i> Inbox
               </Link>
             </li>
-            
+            <li className="nav-item">
+              <Link className={`nav-link custom-nav-link ${location.pathname === '/orders' ? 'active' : ''}`} to="/orders">
+                <i className="bi bi-shield-check me-1"></i> My Orders
+              </Link>
+            </li>
+
+            {/* Sell Item button - Solid color, no gradient, no + icon */}
             <li className="nav-item ms-lg-2 my-1 my-lg-0">
-              <Link to="/add-product" className="btn btn-success fw-bold d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100 w-lg-auto">
-                <i className="bi bi-plus-circle-fill"></i> Sell Item
+              <Link to="/add-product" className="btn btn-solid-success fw-bold d-inline-flex align-items-center justify-content-center px-3.5 py-2 w-100 w-lg-auto">
+                Sell Item
               </Link>
             </li>
 
@@ -161,19 +163,30 @@ export default function Navbar({ onSearch }) {
                     <li>
                       <Link
                         className="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
-                        to="/dashboard"
+                        to="/messages"
                         onClick={() => setShowDropdown(false)}
                       >
-                        <i className="bi bi-grid text-success"></i> Browse Dashboard
+                        <i className="bi bi-chat-dots text-success"></i> Campus Inbox
                       </Link>
                     </li>
+
+                    <li>
+                      <Link
+                        className="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
+                        to="/orders"
+                        onClick={() => setShowDropdown(false)}
+                      >
+                        <i className="bi bi-shield-check text-success"></i> My Orders & Escrow
+                      </Link>
+                    </li>
+
                     <li>
                       <Link
                         className="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2"
                         to="/add-product"
                         onClick={() => setShowDropdown(false)}
                       >
-                        <i className="bi bi-plus-circle text-success"></i> List Item for Sale
+                        <i className="bi bi-tag text-success"></i> Sell an Item
                       </Link>
                     </li>
 
@@ -194,7 +207,7 @@ export default function Navbar({ onSearch }) {
               <li className="nav-item ms-lg-2 my-1 my-lg-0">
                 <Link
                   to="/login"
-                  className={`btn ${location.pathname === '/login' ? 'btn-success fw-bold' : 'btn-outline-light'} px-3 py-2 rounded-3 fw-medium w-100 w-lg-auto d-inline-block text-center`}
+                  className={`btn ${location.pathname === '/login' ? 'btn-solid-success fw-bold' : 'btn-outline-light'} px-3 py-2 rounded-3 fw-medium w-100 w-lg-auto d-inline-block text-center`}
                 >
                   Login
                 </Link>

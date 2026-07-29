@@ -10,7 +10,7 @@ export default function LandingPage() {
           <div className="row align-items-center g-5">
             <div className="col-lg-6">
               
-              <h1 className="display-3  fw-extrabold text-white fw-bolder mb-4 lh-sm">
+              <h1 className="display-3 fw-extrabold text-white fw-bolder mb-4 lh-sm">
                 Buy & Sell Second-Hand Items Easily
               </h1>
               <p className="lead text-white-90 fs-5 mb-4 opacity-90">
@@ -51,22 +51,11 @@ export default function LandingPage() {
                   alt="Students on campus"
                   className="img-fluid rounded-4 shadow-lg hero-img"
                 />
-                <div className="position-absolute bottom-0 start-0 m-4 p-3 glass-panel text-dark text-start shadow-lg rounded-3 d-none d-sm-flex align-items-center gap-3">
-                  <div className="bg-success text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: '45px', height: '45px' }}>
-                    <i className="bi bi-shield-check fs-4"></i>
-                  </div>
-                  <div>
-                    <h6 className="fw-bold mb-0">Verified Trade Zone</h6>
-                    <small className="text-muted">Direct Student-to-Student Deals</small>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-           
     </div>
   );
 }
